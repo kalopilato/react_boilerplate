@@ -3,8 +3,8 @@ var path = require('path');
 
 module.exports = {
   entry: [
-    'script!jquery/dist/jquery.min.js',
-    'script!foundation-sites/dist/js/foundation.min.js',
+    'script-loader!jquery/dist/jquery.min.js',
+    'script-loader!foundation-sites/dist/js/foundation.min.js',
     './app/app.jsx'
   ],
   externals: {
@@ -17,31 +17,49 @@ module.exports = {
     })
   ],
   output: {
-    path: __dirname,
-    filename: './public/bundle.js'
+    path: __dirname + '/public/',
+    filename: 'bundle.js'
   },
   resolve: {
-    root: __dirname,
+    modules: [
+      __dirname,
+      'node_modules',
+      './app/styles'
+    ],
     alias: {
-      applicationStyles: 'app/styles/app.scss',
+      applicationStyles: 'app.scss',
     },
-    extensions: ['', '.js', '.jsx']
+    extensions: ['.js', '.jsx']
   },
   module: {
-    loaders: [
+    rules: [
       {
-        loader: 'babel-loader',
-        query: {
-          presets: ['react', 'es2015', 'stage-0']
-        },
-        test: /\.jsx?$/,
-        exclude: /(node_modules|bower_components)/
+        test: /\.jsx$/,
+        exclude: /(node_modules|bower_components)/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['react', 'es2015', 'stage-0']
+          }
+        }
+      },
+      {
+        test: /\.scss$/,
+        use: [
+          {
+            loader: "style-loader"
+          },
+          {
+            loader: "css-loader"
+          },
+          {
+            loader: "sass-loader",
+            options: {
+              includePaths: [path.resolve(__dirname, './node_modules/foundation-sites/scss')],
+            }
+          },
+        ]
       }
-    ]
-  },
-  sassLoader: {
-    includePaths: [
-      path.resolve(__dirname, './node_modules/foundation-sites/scss')
     ]
   },
   devtool: 'cheap-module-eval-source-map'
